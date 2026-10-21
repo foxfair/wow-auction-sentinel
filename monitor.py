@@ -1,3 +1,4 @@
+import gzip
 import os
 import sys
 import time
@@ -240,7 +241,19 @@ def resolve_market_target(force_refresh: bool = False) -> tuple:
 
             cr_data = cr_res.json()
             realms = cr_data.get("realms", [])
-            realm_names = " / ".join([r.get("name", "") for r in realms])
+            
+            extracted_names = []
+            for r in realms:
+                name_field = r.get("name")
+                if isinstance(name_field, dict):
+                    # Handle localized dict {"en_US": "..."}
+                    extracted_names.append(name_field.get("en_US") or next(iter(name_field.values()), ""))
+                elif isinstance(name_field, str):
+                    extracted_names.append(name_field)
+                elif "slug" in r:
+                    extracted_names.append(r["slug"])
+
+            realm_names = " / ".join(filter(None, extracted_names))
 
             if args.cluster in realm_names.lower() or args.cluster == "mega":
                 target_realm_id = str(cr_data.get("id"))
@@ -512,7 +525,13 @@ def fetch_and_record(target_url: str, target_desc: str):
             for item_id in watchlist
         }
 
-        auctions_stream = ijson.items(res.raw, "auctions.item")
+        # Check Content-Encoding header; decompress stream if gzipped
+        if res.headers.get("Content-Encoding") == "gzip":
+            stream_source = gzip.GzipFile(fileobj=res.raw)
+        else:
+            stream_source = res.raw
+
+        auctions_stream = ijson.items(stream_source, "auctions.item")
 
         for auc in auctions_stream:
             item_data = auc.get("item")
