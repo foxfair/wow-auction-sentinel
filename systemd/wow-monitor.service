@@ -7,17 +7,10 @@ Wants=network-online.target
 Type=simple
 WorkingDirectory=%h/wow-auction-sentinel
 
-# Battle.net API Credentials & Discord Webhook
-Environment=BLIZZARD_CLIENT_ID=your_client_id_here
-Environment=BLIZZARD_CLIENT_SECRET=your_client_secret_here
-Environment=DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/your/webhook/url
+# Load secrets and settings from untracked local .env file
+EnvironmentFile=%h/wow-auction-sentinel/.env
 
-# Optional defaults if flags are omitted: us, eu, kr, tw / mega, hardcore, pvp
-Environment=BLIZZARD_REGION=us
-Environment=BLIZZARD_CLUSTER=mega
-
-# Execution command with explicit CLI arguments
-ExecStart=%h/wow-auction-sentinel/venv/bin/python3 monitor.py --region us --cluster mega
+ExecStart=%h/wow-auction-sentinel/venv/bin/python3 monitor.py --region us --commodities
 
 Restart=on-failure
 RestartSec=60

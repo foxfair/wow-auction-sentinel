@@ -1,0 +1,13 @@
+# Virtual environment
+venv/
+__pycache__/
+*.pyc
+
+# Local SQLite databases & cache
+market_data.db
+*.db
+*.db-journal
+
+# Environment variables & credentials
+.env
+
