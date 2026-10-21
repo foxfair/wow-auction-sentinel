@@ -499,8 +499,14 @@ def index_page():
           document.getElementById('clusterBadge').textContent = `🌐 ${data.cluster_target}`;
         }
         if (data.last_updated) {
-          const d = new Date(data.last_updated);
-          document.getElementById('syncStatus').textContent = `Synced: ${d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+          const isoStr = data.last_updated.endsWith('Z') ? data.last_updated : data.last_updated + 'Z';
+          const d = new Date(isoStr);
+          document.getElementById('syncStatus').textContent = `Synced: ${d.toLocaleTimeString([], {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true,
+            timeZoneName: 'short'
+          })}`;
         } else {
           document.getElementById('syncStatus').textContent = 'Awaiting initial snapshot...';
         }

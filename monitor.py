@@ -8,7 +8,7 @@ import sqlite3
 import logging
 import requests
 import ijson
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 # --- CLI & Runtime Options ---
 parser = argparse.ArgumentParser(description="WoW: Forever Market Sentinel Daemon")
@@ -87,7 +87,7 @@ def init_db():
 
     cursor.execute("SELECT COUNT(*) FROM watchlist")
     if cursor.fetchone()[0] == 0:
-        now_iso = datetime.utcnow().isoformat()
+        now_iso = datetime.now(timezone.utc).isoformat()
         cursor.executemany("""
             INSERT INTO watchlist (item_id, name, min_surge_units, is_active, created_at)
             VALUES (?, ?, ?, 1, ?)
